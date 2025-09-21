@@ -9,10 +9,9 @@
 
 ## Installation
 
- রিপোজিটরি ক্লোন করুন:
    ```bash
-   git clone <https://github.com/Zubayer-Al-Mamun/Topz-Backend>
-   cd <Topz-Backend>
+   git clone https://github.com/Zubayer-Al-Mamun/Topz-Backend
+   cd Topz-Backend
 
    npm install
    node server.js
