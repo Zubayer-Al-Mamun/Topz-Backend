@@ -30,8 +30,8 @@ const uploadToCloudinary = (fileBuffer) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             {
-                format: "webp", // 🔹 Convert to WebP
-                quality: "auto:good", // 🔹 Smart optimization (aim ~500KB)
+                format: "webp",
+                quality: "auto:good", 
                 transformation: [
                     { fetch_format: "webp", quality: "auto:good", crop: "fit" }, // 🔹 no crop
                 ],
@@ -46,19 +46,21 @@ const uploadToCloudinary = (fileBuffer) => {
     });
 };
 
-// ------------------- Route -------------------
-app.post("/product", upload.single("image"), async (req, res) => {
+
+app.post("/product", upload.array("images"), async (req, res) => {
     try {
         const body = req.body;
-        const file = req.file;
+        const files = req.files;
 
-        // 🟢 Cloudinary upload
-        let imageUrl = null;
-        if (file) {
-            imageUrl = await uploadToCloudinary(file.buffer);
+        // Cloudinary upload
+        let imageUrls = [];
+        if (files && files.length > 0) {
+            for(const file of files ){
+                const url = await uploadToCloudinary(file.buffer);
+                imageUrls.push(url);
+            }
         }
 
-        // Example product build
         const product = new Product({
             title: body.title,
             description: body.description,
@@ -69,21 +71,37 @@ app.post("/product", upload.single("image"), async (req, res) => {
             discountsPercentage: Number(body.discountsPercentage),
             for: body.for,
             stock: Number(body.stock),
-            mainImage: imageUrl,
+            images: imageUrls,
             vendor: body.vendor,
             rating: body.rating,
         });
 
-        // console.log(req.body);
-        // console.log(product);
+        const product2 = new Product({...body, images : imageUrls})
+        console.log(product , "....................\n");
+        console.log(product2);
 
         await product.save();
-        res.json({ message: "✅ Product uploaded successfully", imageUrl });
+        res.json({ message: "Product uploaded successfully" });
     } catch (err) {
-        console.error("❌ Error:", err);
+        console.error("Error:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
+
+
+app.get("/view/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const data = await Product.findById(id);
+        const view = data.totalView;
+        console.log(view);
+        await Product.findByIdAndUpdate(id, { totalView: view + 1 });
+    } catch (err) {
+        res.status(500).json({ error: "Single Product View increasing problem..." });
+    }
+});
+
+
 
 app.get("/product/:id", async (req, res) => {
     const id = req.params.id;
@@ -95,18 +113,6 @@ app.get("/product/:id", async (req, res) => {
     }
 });
 
-app.get("/view/:id", async (req, res) => {
-    const id = req.params.id;
-    try {
-        const data = await Product.findById(id);
-        const view = data.totalView;
-        console.log(view);
-        await Product.findByIdAndUpdate(id, { totalView: view + 1 });
-        res.send("done..");
-    } catch (err) {
-        res.status(500).json({ error: "Single Product View increasing problem..." });
-    }
-});
 
 app.get("/products", async (req, res) => {
     try {
@@ -116,6 +122,11 @@ app.get("/products", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch products" });
     }
 });
+
+
+app.get("/no-sleep", async (req, res) => {
+    res.json("ok");
+})
 
 // ------------------- Start Server -------------------
 app.listen(8000, () => {

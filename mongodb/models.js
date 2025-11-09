@@ -5,7 +5,7 @@ export const connectDB = async () => {
     mongoose 
     .connect(`${process.env.MONGO_URI}/yaqeen`)
     .then(() => console.log("MongoDB connected..."))
-    .catch((err) => console.error("Mongodb error"));
+    .catch((err) => console.error("Mongodb error"))
 
 }
 
@@ -15,7 +15,7 @@ const colorSchema = new mongoose.Schema({
     m: { type: Number, default: 0 },
     l: { type: Number, default: 0 },
     xl: { type: Number, default: 0 },
-    imageUrl: { type: [String], default: [] }, // Cloudinary URLs
+    imageUrl: { type: [String], default: [] },
 });
 
 const reviewSchema = new mongoose.Schema({
@@ -24,7 +24,7 @@ const reviewSchema = new mongoose.Schema({
     salerComment: { type: String, default: "" },
     date: { type: Date, default: Date.now },
     rating: { type: Number, default: 0 },
-    imageUrl: { type: [String], default: [] }, // Cloudinary URLs
+    imageUrl: { type: [String], default: [] },
 });
 
 const productSchema = new mongoose.Schema(
@@ -32,7 +32,7 @@ const productSchema = new mongoose.Schema(
         title: { type: String},
         description: { type: String, default: "" },
         category: { type: String},
-        mainImage: { type: String},
+        images: { type: Array},
         subcategory: { type: String, default: "" },
         pricing: { type: Number},
         discountsPrice: { type: Number, default: 0 },
@@ -40,9 +40,9 @@ const productSchema = new mongoose.Schema(
         for: { type: String, default: "" },
         stock: { type: Number, default: 0 },
         rating: { type: Number, default: 0 },
-        vars: { type: [colorSchema], default: [] }, // array of color subdocuments
+        vars: { type: [colorSchema], default: [] }, 
         vendor: { type: String, default: "" },
-        reviews: { type: [reviewSchema], default: [] }, // array of review subdocuments
+        reviews: { type: [reviewSchema], default: [] },
         totalView: { type: Number, default: 0 },
         totalSale: { type: Number, default: 0 },
         rating: { type: Number, default: 4.5 },
